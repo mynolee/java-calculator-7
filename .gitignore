@@ -33,3 +33,9 @@ out/
 
 ### Mac OS ###
 .DS_Store
+
+#IDE 설정 무시
+.idea/
+
+# Androiod SDK 경로 등 민감한 정보
+local.properties

@@ -4,55 +4,56 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
-import java.util.Arrays;
+
 
 public class Application {
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String str = br.readLine();
+        String input = br.readLine();
 
-        char[] arr = new char[str.length()];
-        char[] cus = new char[];
-
-
-        for(int i = 0; i < str.length(); i++){
-            arr[i] = str.charAt(i);
+        try {
+            int sum = calculate(input);
+            System.out.println(sum);
+        } catch (IllegalArgumentException e) {
+            System.out.println("잘못된 입력입니다: " + e.getMessage());
         }
-        if(arr[0] == "/"){
-            for(int i = 2; arr[i]=="\\";i++){
-                cus[i-2] = arr[i];
+    }
+    public static int calculate(String input) {
+        if (input == null || input.isEmpty()) {
+            return 0;
+        }
+
+        String delim = ",:";
+        String numbers = input;
+
+        if (input.startsWith("//")) {
+            int delimEnd = input.indexOf("\\n");
+            if (delimEnd == -1) {
+                throw new IllegalArgumentException("입력에서 \\n을 찾을 수 없습니다.");
             }
 
-            StringTokenizer stn = new StringTokenizer(str, "cus[0:i-2]");
+            delim = input.substring(2, delimEnd);
+            numbers = input.substring(delimEnd + 2);
         }
 
+        StringTokenizer tokenizer = new StringTokenizer(numbers, delim);
         int sum = 0;
-        StringTokenizer st = new StringTokenizer(str, ",|:| ");
-        int count = st.countTokens();
-        // for문 count 자리에 st.countTokens() 쓰면 안되는 이유는
-        // st.nextToken()에서 하나씩 빼서 쓰므로 st.countTokens는 남아있는 토큰수를 셈으로 계속 줆
-        // for문 반복횟수에 문제 생김.
-        for (int i = 0; i <count; i++){
-            sum += Integer.parseInt(st.nextToken());
+
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken().trim();
+
+            if (token.isEmpty()) {
+                continue;
+            }
+
+            if (!token.matches("\\d+")) {
+                throw new IllegalArgumentException("숫자가 아닌 값이 포함되어 있습니다: " + token);
+            }
+
+            sum += Integer.parseInt(token);
         }
-        System.out.println(sum);
 
-
-
-
-
-
-
-
+        return sum;
     }
-}
-
-class baseGubun{
-    String a = ",";
-    String b = ":";
-}
-
-class customGubun{
-
 }
