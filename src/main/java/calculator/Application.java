@@ -37,33 +37,34 @@ public class Application {
         return sumNumbers(input, BASIC_ARITHMETIC_REGEX);
     }
 
-    private static int sumNumbers(String input, String BASIC_ARITHMETIC_REGEX){
-        String[] usedNumbers = usedNumbers(input);
-        String[] usedBasicArithmetic = usedBasicArithmetic(input);
+    private static int sumNumbers(String input, String BASIC_ARITHMETIC_REGEX) {
+        String[] useNumbers = useNumbers(input);
+        String[] useBasicArithmetic = useBasicArithmetic(input);
 
-        int sum = Integer.parseInt(usedNumbers[0]);
+        int sum = Integer.parseInt(useNumbers[0]);
 
-        for(int i = 0; i < usedBasicArithmetic.length; i++){
-            if(usedBasicArithmetic[i].equals("+")){
-                sum = sum + Integer.parseInt(usedNumbers[i+1]);
-            } else if ( usedBasicArithmetic[i].equals("-")){
-                sum = sum - Integer.parseInt(usedNumbers[i+1]);
-            } else if ( usedBasicArithmetic[i].equals("x")) {
-                sum = sum*Integer.parseInt(usedNumbers[i + 1]);
-            } else if ( usedBasicArithmetic[i].equals("/")) {
-                if (Integer.parseInt(usedNumbers[i+1]) == 0){
+        for (int i = 0; i < useBasicArithmetic.length; i++) {
+            if (useBasicArithmetic[i].equals("+")) {
+                sum = sum + Integer.parseInt(useNumbers[i + 1]);
+            } else if (useBasicArithmetic[i].equals("-")) {
+                sum = sum - Integer.parseInt(useNumbers[i + 1]);
+            } else if (useBasicArithmetic[i].equals("x")) {
+                sum = sum * Integer.parseInt(useNumbers[i + 1]);
+            } else if (useBasicArithmetic[i].equals("/")) {
+                if (Integer.parseInt(useNumbers[i + 1]) == 0) {
                     throw new IllegalArgumentException("0으로 나눌 수 없습니다.");
                 }
-                sum = sum/Integer.parseInt(usedNumbers[i + 1]);
+                sum = sum / Integer.parseInt(useNumbers[i + 1]);
             } else throw new IllegalArgumentException("재입력 바랍니다.");
         }
 
         return sum;
     }
-    private static String[] usedNumbers(String input) {
-        String[] usedNumbers = input.split(BASIC_ARITHMETIC_REGEX);
 
-        for (String number : usedNumbers) {
+    private static String[] useNumbers(String input) {
+        String[] useNumbers = input.split(BASIC_ARITHMETIC_REGEX);
+
+        for (String number : useNumbers) {
             number = number.trim();
             if (number.isEmpty()) continue;
 
@@ -72,18 +73,18 @@ public class Application {
             }
         }
 
-        return usedNumbers;
+        return useNumbers;
     }
 
-    private static String[] usedBasicArithmetic(String input) {
+    private static String[] useBasicArithmetic(String input) {
 
-        List<String> usedBasicArithmetic = new ArrayList<>();
-        for (char ch : input.toCharArray()){
-            if (BASIC_ARITHMETIC_REGEX.indexOf(ch) != INDEX_NOT_FOUND){
-                usedBasicArithmetic.add(String.valueOf(ch));
+        List<String> useBasicArithmetic = new ArrayList<>();
+        for (char ch : input.toCharArray()) {
+            if (BASIC_ARITHMETIC_REGEX.indexOf(ch) != INDEX_NOT_FOUND) {
+                useBasicArithmetic.add(String.valueOf(ch));
             }
         }
-        return usedBasicArithmetic.toArray(new String[0]);
+        return useBasicArithmetic.toArray(new String[0]);
     }
 
 }
