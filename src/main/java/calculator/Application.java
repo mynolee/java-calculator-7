@@ -19,8 +19,8 @@ public class Application {
             String input = br.readLine();
 
             try {
-                int sum = controlCalculation(input);
-                System.out.println("계산 결과: " + sum);
+                int result = controlCalculation(input);
+                System.out.println("계산 결과: " + result);
                 break;
             } catch (IllegalArgumentException e) {
                 System.out.println("잘못된 입력입니다: " + e.getMessage());
@@ -31,60 +31,74 @@ public class Application {
 
     public static int controlCalculation(String input) {
         if (input == null || input.isEmpty()) {
-            throw new IllegalArgumentException("재입력 바랍니다.");
+            throw new IllegalArgumentException("입력이 비어 있습니다. 재입력 바랍니다.");
         }
 
-        return sumNumbers(input, BASIC_ARITHMETIC_REGEX);
+        return resultNumbers(input, BASIC_ARITHMETIC_REGEX);
     }
 
-    private static int sumNumbers(String input, String BASIC_ARITHMETIC_REGEX) {
-        String[] useNumbers = useNumbers(input);
-        String[] useBasicArithmetic = useBasicArithmetic(input);
+    private static int resultNumbers(String input, String BASIC_ARITHMETIC_REGEX) {
+        int[] extractNumbers = extractNumbers(input);
+        String[] extractBasicArithmetic = extractBasicArithmetic(input);
 
-        int sum = Integer.parseInt(useNumbers[0]);
+        int result = extractNumbers[0];
 
-        for (int i = 0; i < useBasicArithmetic.length; i++) {
-            if (useBasicArithmetic[i].equals("+")) {
-                sum = sum + Integer.parseInt(useNumbers[i + 1]);
-            } else if (useBasicArithmetic[i].equals("-")) {
-                sum = sum - Integer.parseInt(useNumbers[i + 1]);
-            } else if (useBasicArithmetic[i].equals("x")) {
-                sum = sum * Integer.parseInt(useNumbers[i + 1]);
-            } else if (useBasicArithmetic[i].equals("/")) {
-                if (Integer.parseInt(useNumbers[i + 1]) == 0) {
-                    throw new IllegalArgumentException("0으로 나눌 수 없습니다.");
-                }
-                sum = sum / Integer.parseInt(useNumbers[i + 1]);
-            } else throw new IllegalArgumentException("재입력 바랍니다.");
+        for (int i = 0; i < extractBasicArithmetic.length; i++) {
+            switch (extractBasicArithmetic[i]) {
+                case "+":
+                    result = result + extractNumbers[i + 1];
+                    break;
+                case "-":
+                    result = result - extractNumbers[i + 1];
+                    break;
+                case "x":
+                    result = result * extractNumbers[i + 1];
+                    break;
+                case "/":
+                    if (extractNumbers[i + 1] == 0) {
+                        throw new IllegalArgumentException("0으로 나눌 수 없습니다.");
+                    }
+                    result = result / extractNumbers[i + 1];
+                    break;
+                default:
+                    throw new IllegalArgumentException("재입력 바랍니다.");
+            }
         }
 
-        return sum;
+        return result;
     }
 
-    private static String[] useNumbers(String input) {
-        String[] useNumbers = input.split(BASIC_ARITHMETIC_REGEX);
+    private static int[] extractNumbers(String input) {
+        String[] extractNumbers = input.split(BASIC_ARITHMETIC_REGEX);
+        int[] Numbers = new int[0];
 
-        for (String number : useNumbers) {
-            number = number.trim();
-            if (number.isEmpty()) continue;
+        for (String number : extractNumbers) {
+            if (shouldSkip(number)) continue;
 
             if (!number.matches("\\d+")) {
                 throw new IllegalArgumentException("숫자가 아닌 값이 포함되어 있습니다: " + number);
             }
         }
 
-        return useNumbers;
+        for (int i = 0; i<extractNumbers.length;i++){
+            Numbers[i] = Integer.parseInt(extractNumbers[i]);
+        }
+        return Numbers;
     }
 
-    private static String[] useBasicArithmetic(String input) {
+    private static String[] extractBasicArithmetic(String input) {
 
-        List<String> useBasicArithmetic = new ArrayList<>();
+        List<String> extractBasicArithmetic = new ArrayList<>();
         for (char ch : input.toCharArray()) {
             if (BASIC_ARITHMETIC_REGEX.indexOf(ch) != INDEX_NOT_FOUND) {
-                useBasicArithmetic.add(String.valueOf(ch));
+                extractBasicArithmetic.add(String.valueOf(ch));
             }
         }
-        return useBasicArithmetic.toArray(new String[0]);
+        return extractBasicArithmetic.toArray(new String[0]);
     }
 
+
+    public static boolean shouldSkip(String number) {
+        return number == null || number.trim().isEmpty();
+    }
 }
