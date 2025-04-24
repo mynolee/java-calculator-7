@@ -3,13 +3,12 @@ package calculator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Application {
-
-    private static final String DEFAULT_DELIMITERS_REGEX = "[,:]";
-    private static final String CUSTOM_DELIMITER_PREFIX = "//";
-    private static final String NEWLINE_TOKEN = "\\n";
+    private static final String BASIC_ARITHMETIC_REGEX = "[+\\-x/]";
     private static final int INDEX_NOT_FOUND = -1;
 
     public static void main(String[] args) throws IOException {
@@ -20,8 +19,8 @@ public class Application {
             String input = br.readLine();
 
             try {
-                int sum = calculate(input);
-                System.out.println("합계: " + sum);
+                int result = controlCalculation(input);
+                System.out.println("계산 결과: " + result);
                 break;
             } catch (IllegalArgumentException e) {
                 System.out.println("잘못된 입력입니다: " + e.getMessage());
@@ -30,55 +29,76 @@ public class Application {
         }
     }
 
-    public static int calculate(String input) {
+    public static int controlCalculation(String input) {
         if (input == null || input.isEmpty()) {
-            return 0;
+            throw new IllegalArgumentException("입력이 비어 있습니다. 재입력 바랍니다.");
         }
 
-        String delimiterRegex = getDelimiter(input);
-        String numbers = extractNumbers(input);
-
-        return sumNumbers(numbers, delimiterRegex);
+        return resultNumbers(input, BASIC_ARITHMETIC_REGEX);
     }
 
-    private static String getDelimiter(String input) {
-        if (input.startsWith(CUSTOM_DELIMITER_PREFIX)) {
-            int delimiterEnd = input.indexOf(NEWLINE_TOKEN);
-            if (delimiterEnd == INDEX_NOT_FOUND) {
-                throw new IllegalArgumentException("입력에서 " + NEWLINE_TOKEN + "을 찾을 수 없습니다.");
+    private static int resultNumbers(String input, String BASIC_ARITHMETIC_REGEX) {
+        int[] extractNumbers = extractNumbers(input);
+        String[] extractBasicArithmetic = extractBasicArithmetic(input);
+
+        int result = extractNumbers[0];
+
+        for (int i = 0; i < extractBasicArithmetic.length; i++) {
+            switch (extractBasicArithmetic[i]) {
+                case "+":
+                    result = result + extractNumbers[i + 1];
+                    break;
+                case "-":
+                    result = result - extractNumbers[i + 1];
+                    break;
+                case "x":
+                    result = result * extractNumbers[i + 1];
+                    break;
+                case "/":
+                    if (extractNumbers[i + 1] == 0) {
+                        throw new IllegalArgumentException("0으로 나눌 수 없습니다.");
+                    }
+                    result = result / extractNumbers[i + 1];
+                    break;
+                default:
+                    throw new IllegalArgumentException("재입력 바랍니다.");
             }
-
-            String customDelimiter = input.substring(CUSTOM_DELIMITER_PREFIX.length(), delimiterEnd);
-            return Pattern.quote(customDelimiter);
         }
 
-        return DEFAULT_DELIMITERS_REGEX;
+        return result;
     }
 
-    private static String extractNumbers(String input) {
-        if (input.startsWith(CUSTOM_DELIMITER_PREFIX)) {
-            int delimiterEnd = input.indexOf(NEWLINE_TOKEN);
-            return input.substring(delimiterEnd + NEWLINE_TOKEN.length());
-        }
+    private static int[] extractNumbers(String input) {
+        String[] extractNumbers = input.split(BASIC_ARITHMETIC_REGEX);
+        int[] Numbers = new int[0];
 
-        return input;
-    }
+        for (String number : extractNumbers) {
+            if (shouldSkip(number)) continue;
 
-    private static int sumNumbers(String numbers, String delimiterRegex) {
-        String[] tokens = numbers.split(delimiterRegex);
-        int sum = 0;
-
-        for (String token : tokens) {
-            token = token.trim();
-            if (token.isEmpty()) continue;
-
-            if (!token.matches("\\d+")) {
-                throw new IllegalArgumentException("숫자가 아닌 값이 포함되어 있습니다: " + token);
+            if (!number.matches("\\d+")) {
+                throw new IllegalArgumentException("숫자가 아닌 값이 포함되어 있습니다: " + number);
             }
-
-            sum += Integer.parseInt(token);
         }
 
-        return sum;
+        for (int i = 0; i<extractNumbers.length;i++){
+            Numbers[i] = Integer.parseInt(extractNumbers[i]);
+        }
+        return Numbers;
+    }
+
+    private static String[] extractBasicArithmetic(String input) {
+
+        List<String> extractBasicArithmetic = new ArrayList<>();
+        for (char ch : input.toCharArray()) {
+            if (BASIC_ARITHMETIC_REGEX.indexOf(ch) != INDEX_NOT_FOUND) {
+                extractBasicArithmetic.add(String.valueOf(ch));
+            }
+        }
+        return extractBasicArithmetic.toArray(new String[0]);
+    }
+
+
+    public static boolean shouldSkip(String number) {
+        return number == null || number.trim().isEmpty();
     }
 }
